@@ -1,3 +1,8 @@
+# Install any customized version of the CKAN core code.
+#[ -d $SRC_DIR ] || mkdir $SRC_DIR
+#cd $SRC_DIR
+#git clone --branch 2.9-FIPS --depth 1 https://github.com/katucker/ckan.git
+
 # Clone the CKAN extensions to use. In order for CKAN to find and load an extension
 # at runtime, install them in the directory listed in the SRC_DIR environment variable.
 # If you want to modify the extension code, install the full repo, specifying git branch to use
@@ -32,13 +37,16 @@ cd ..
 
 git clone --branch 0.10.0 --depth 1 https://github.com/ckan/ckanext-xloader.git
 
-# Not a CKAN extenion, but another Python module used by a CKAN extenion. Install it uneditable.
-pip3 install https://github.com/katucker/messytables/archive/refs/heads/ed.zip
+# Not a CKAN extenion, but another Python module used by a CKAN extenion. Install it with pip.
+pip3 install git+https://github.com/katucker/messytables/archive/refs/heads/ed.zip
 
 git clone --branch master https://github.com/datopian/ckanext-dataexplorer-react.git
 cd ckanext-dataexplorer-react
 git checkout 73173a1e831dd417a7b252826b0e7ec75cf3459c
 cd ..
 
-git clone --branch ed-multi-saml --depth 1 https://github.com/datopian/ckanext-saml2auth.git
+git clone --branch ed-icam --depth 1 https://github.com/katucker/ckanext-saml2auth.git
 
+# Install the Python module for bundling Javascript code, modified to operate correctly on
+# systems enforcing FIPS compliance for encryption algorithms.
+pip3 install git+https://github.com/katucker/webassets.git@fips

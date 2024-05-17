@@ -26,7 +26,7 @@ To build the image, run the commands below.
     cd edbase
 	docker build -t edbase .
 
-#### EDTest image
+### EDTest image
 
 Use this image if you want to test changes to any of the extensions beyond the edbase image.
 
@@ -45,11 +45,13 @@ To build the image, first build the edbase image above, or `docker pull` it from
 
  The image depends on an `.env` file for configuration options. A file named `.env.example` is included in the test-setup directory to use as a starting point. Copy and rename that file to `.env` in the folder mapped to the test-setup volume described above and edit as needed. Using the default values on the `.env.example` file will not get you a working CKAN instance. Since this image uses other services (PostgreSQL, Solr, and Redis) not installed in the image, the configuration settings must be edited to specify the locations and accounts for those other services. The edited `.env` file should replace everything surrounded by angle brackets, including the angle brackets, with the appropriate value for your specific environment. For example, in the line starting with `CKAN_SQLALCHEMY_URL`, the text `<ckan-user-id>` should be replaced with `ckanuser` if that's the name of an account in the PostgreSQL database with privileges to write to the CKAN database.
 
- Similarly, the image does not contain any release of the ED CKAN extension. As noted above, the CKAN extension to test must be stored as a file named ckanext-ed.zip in the host computer folder mapped to the test-setup volume.
+ Similarly, the image does not contain any release of the ED CKAN extension. As noted above, the CKAN extension to test must be stored as a file named ckanext-ed.zip in the host computer folder mapped to the /srv/app/test-setup folder in the container.
 
  The startup shell script also performs a `pip install -r` on all `requirements.txt` or `pip-requirements.txt` files found in any of the installed CKAN extension folders. This ensures the Python modules required for all the base CKAN extensions as well as the specific extension to test are installed when the container starts.
  
- ### Minimal Development image
+ ### Development images
+
+ #### Minimal development image
 
 Use this image if you are making code changes to CKAN, creating new extensions, or making code changes to existing extensions.
 
@@ -60,9 +62,23 @@ To build the image, first build the edbase image above, or `docker pull` it from
 
 This image installs only the CKAN application and its extensions, and uses an `.env` file for configuration options to specify the locations and accounts for the PostgreSQL, Solr and Redis services. The image is useful for development on a computer with limited resources, using other computers or cloud services to provide the resource-intensive services.    
 
-Similar to the edtest image, this image runs a shell script at container startup to install the required files for a development environment. In addition to running `pip install -r` on `requirements.txt` and `pip-requirements.txt` files found in the installed CKAN extensions, the script also pip installs any moduels list in `dev-extensions.txt` files.
+#### Self-contained development image
 
-To facilitate development, a container running this image should map a host computer folder to `/srv/app/src` to share source code files between the host and container.
+Use this docker compose setup if you are making code changes that involve database changes, or have enough computing resources to run PostgreSQL, Resis, and Solr locally.
+
+To build this set of images, first build the edbase image above, or `docker pull` it from Docker hub, then run the commands below.
+
+cd eddevsa
+docker compose build
+
+The compose.yaml file defines four containers - one for CKAN and the extensions used by ED, one for PostgreSQL, one for Redis, and one for Solr.
+
+In contrast to the edtest image, this image installs the required files for a development environment in the image build step rather than at container startup. In addition to running `pip install -r` on `requirements.txt` and `pip-requirements.txt` files found in the installed CKAN extensions, the script also pip installs any modules list in `dev-requirements.txt` files.
+
+To facilitate development, the docker compose setup maps a folder named `src` in the current directory at container startup to `/srv/app/src`, to share source code files between the host and container. Code editing can be done on the host computer and tested on the docker compose containers.
+A file named `ca.crt` in that folder will be used, if present, to override the Certificate Authority bundle in all containers. Thus, if a custom Certificate Authority is used, that file can be used to update it whenever needed without having to rebuild the images.
+
+Since docker compose is used, the `.env` file is specified at the root level rather than within the context folder for the ckan image. The contents of that file are used at image build time, so the configuration is not dynamically changed at every container startup.
 
 ##### Create an extension
 

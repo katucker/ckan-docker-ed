@@ -8,7 +8,7 @@ RUN chmod +x $APP_DIR/start_ckan_test.sh
 # Copy custom initialization scripts
 COPY docker-entrypoint.d/* /docker-entrypoint.d/
 
-# Apply any patches needed to CKAN core or any of the built extensions (not the
+# Apply any patches needed to CKAN core or any of the built-in extensions (not the
 # runtime mounted ones)
 COPY patches ${APP_DIR}/patches
 

@@ -32,4 +32,4 @@ VOLUME ${APP_DIR}/test-setup
 COPY test-setup/* ${APP_DIR}/test-setup/
 RUN chown -R ckan:ckan $APP_DIR/test-setup
 
-CMD ["/srv/app/start_ckan_test.sh"]
+CMD ["/srv/app/start_ckan_development.sh"]

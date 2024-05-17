@@ -8,8 +8,7 @@
 # Use a custom certificate bundle if one is provided in the test-setup.
 if [ -f /srv/app/test-setup/ca.crt ];
 then
-    export SSL_CERT_FILE=/srv/app/test-setup/ca.crt
-    export REQUESTS_CA_BUNDLE=$SSL_CERT_FILE
+    cp /srv/app/test-setup/ca.crt /etc/ssl/certs/ca-certificates.crt
 fi
 
 # Install the ckanext-ed extension to test.
@@ -19,6 +18,9 @@ fi
 if [ -f /srv/app/test-setup/ckanext-ed.zip ];
 then
     pip3 install -e /srv/app/test-setup/ckanext-ed.zip
+    # Rename the extension ZIP file so it won't be installed again on subsequent runs
+    # unless it's replaced with a newer ZIP file.
+    mv /srv/app/test-setup/ckanext-ed.zip /srv/app/test-setup/ckanext-ed.zip.done
 fi
 
 # Load the environment variables from a file in the /srv/app/test-setup
@@ -40,11 +42,15 @@ do
         if [ -f $i/pip-requirements.txt ];
         then
             pip install -r $i/pip-requirements.txt
+            # Rename the requirements file to reflect it's already been processed.
+            mv $i/pip-requirements.txt $i/pip-requirements.txt.done
             echo "Found requirements file in $i"
         fi
         if [ -f $i/requirements.txt ];
         then
             pip install -r $i/requirements.txt
+            # Rename the requirements file to reflect it's already been processed.
+            mv $i/requirements.txt $i/requirements.txt.done
             echo "Found requirements file in $i"
         fi
     fi
